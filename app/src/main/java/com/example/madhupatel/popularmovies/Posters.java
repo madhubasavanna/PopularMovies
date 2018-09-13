@@ -2,16 +2,16 @@ package com.example.madhupatel.popularmovies;
 
 public class Posters {
     private String name;
-    private int moviePoster;
+    private String posterUrl;
 
-    public Posters(String name, int id)
+    public Posters(String name, String url)
     {
         this.name = name;
-        this.moviePoster = id;
+        this.posterUrl = url;
     }
 
-    public int getResourceId() {
-        return moviePoster;
+    public String getPosterUrl() {
+        return posterUrl;
     }
 
     public String getName() {
@@ -22,7 +22,7 @@ public class Posters {
         this.name = name;
     }
 
-    public void setResourceId(int resourceId) {
-        this.moviePoster = resourceId;
+    public void setResourceId(String url) {
+        this.posterUrl = url;
     }
 }
