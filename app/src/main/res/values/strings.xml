@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Popular Movies</string>
-    <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="movie_name">Name</string>
+    <string name="rating">Rating: </string>
+    <string name="release_date">Release Date: </string>
+    <string name="overview">OverView: </string>
+    <string name="top_rated">Top Rated</string>
+    <string name="movie_details">Movie Details</string>
+    <string name="back_poster">Back poster</string>
+    <string name="poster">poster</string>
 </resources>

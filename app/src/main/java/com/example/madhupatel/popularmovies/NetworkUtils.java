@@ -12,25 +12,57 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class NetworkUtils {
-    final static String BASE_URL =
+class NetworkUtils {
+    private static final String API_KEY = BuildConfig.API_KEY;
+    private final static String BASE_URL =
             "http://image.tmdb.org/t/p/";
-    final static String MOVIE_URL =
-            "http://api.themoviedb.org/3/movie/popular?api_key=";
-    final static String apiKey = "";
-    final static String PARAM_QUERY = "q";
-    final static String PARAM_SORT = "sort";
-    final static String sortBy = "stars";
+    private final static String MOVIE_URL =
+            "http://api.themoviedb.org/3/movie/";
+    private final static String sortByTopRatings = "top_rated?api_key=";
+    private final static String apiKey = API_KEY;
+    private final static String sortByPopularity = "popular?api_key=";
+    private final static String trailerUrl = "/videos?api_key=";
 
-    public static String buildUrl(String imageUrl){
-        String finalUrl = BASE_URL + "w185//" + imageUrl;
+    public static String buildUrl(String imageUrl,char c){
+        String finalUrl;
+        switch (c)
+        {
+           case'p': {
+               finalUrl = BASE_URL + "w185//" + imageUrl;
+               break;
+           }
 
+           case'b': {
+               finalUrl = BASE_URL + "w342//" + imageUrl;
+               break;
+           }
+
+           default: finalUrl = null;
+        }
         return finalUrl;
     }
 
-    public static JSONArray getResponseFromHttpUrl() throws IOException{
+    public static JSONArray getResponseFromHttpUrl(String sortId) throws IOException{
+        HttpURLConnection urlConnection;
+        switch (sortId){
+            case "1":urlConnection = (HttpURLConnection) new URL(MOVIE_URL + sortByPopularity + apiKey).openConnection();
+                    break;
 
-        HttpURLConnection urlConnection = (HttpURLConnection) new URL(MOVIE_URL + apiKey).openConnection();
+            case "2":urlConnection = (HttpURLConnection) new URL(MOVIE_URL + sortByTopRatings + apiKey).openConnection();
+                    break;
+
+            default:urlConnection = (HttpURLConnection) new URL(MOVIE_URL + sortByTopRatings + apiKey).openConnection();
+        }
+
+        return httpConnection(urlConnection);
+    }
+
+    public static JSONArray getResponseFromHttpUrl(int id) throws IOException{
+        HttpURLConnection urlConnection = (HttpURLConnection) new URL(MOVIE_URL + id +trailerUrl + apiKey).openConnection();
+        return httpConnection(urlConnection);
+    }
+
+    private static JSONArray httpConnection(HttpURLConnection urlConnection)  throws IOException{
         try{
             if(urlConnection.getResponseCode() == 200){
                 BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -40,8 +72,8 @@ public class NetworkUtils {
                 }
                 try {
                     JSONObject jsonObject = new JSONObject(builder.toString());
-                    JSONArray jsonArray = jsonObject.getJSONArray("results");
-                    return jsonArray;
+
+                    return jsonObject.getJSONArray("results");
                 }catch (JSONException e){
                     e.printStackTrace();
                     return null;

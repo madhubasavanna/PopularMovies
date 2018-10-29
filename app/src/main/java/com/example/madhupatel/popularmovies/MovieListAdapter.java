@@ -3,6 +3,7 @@ package com.example.madhupatel.popularmovies;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,16 +17,16 @@ import java.util.List;
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.NumberViewHolder>{
 
     private Context context;
-    private List<Posters> moviewList;
-    private ListItemClickListener mOnClickListener;
+    private final List<Posters> movieList;
+    private final ListItemClickListener mOnClickListener;
 
     public interface ListItemClickListener {
-        void onListItemClick(int clickedItemIndex, String title);
+        void onListItemClick(Posters object);
     }
 
     public MovieListAdapter(ListItemClickListener listener, List<Posters> list){
         this.mOnClickListener = listener;
-        this.moviewList = list;
+        this.movieList = list;
     }
 
     @NonNull
@@ -45,23 +46,24 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Numb
 
     @Override
     public int getItemCount() {
-        return moviewList.size();
+        return movieList.size();
     }
 
     public class NumberViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        public TextView title;
-        public ImageView image;
+        final TextView title;
+        final ImageView image;
         private Posters poster;
 
-        public NumberViewHolder(View view){
+        NumberViewHolder(View view){
             super(view);
             this.title = view.findViewById(R.id.title);
             this.image = view.findViewById(R.id.image);
         }
 
         void bind(int position){
-            poster = moviewList.get(position);
+            poster = movieList.get(position);
             title.setText(poster.getName());
+            //Log.i("trailermovielistadapter", poster.getTrailerList().get(0));
 
             //loading movie poster using picasso library
             Picasso.with(context).load(poster.getPosterUrl()).into(image);
@@ -71,8 +73,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Numb
 
         @Override
         public void onClick(View view) {
-            int clickedPosition = getAdapterPosition();
-            mOnClickListener.onListItemClick(clickedPosition, poster.getName());
+            mOnClickListener.onListItemClick(poster);
         }
     }
 }
