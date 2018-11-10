@@ -9,14 +9,17 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.madhupatel.popularmovies.Favorites_db.FavoritesDatabase;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -38,8 +41,11 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
     String poster;
     String release_date;
     ListView mTrailersListView;
+    Button btnReviews;
+    ImageView btn_star;
 
     ArrayList<Trailer> mTrailers;
+    Review mReview;
 
     TrailerAdapter trailersAdapter;
 
@@ -89,6 +95,9 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
         ImageView posterUrl = findViewById(R.id.poster);
         Picasso.with(this).load(poster).into(posterUrl);
 
+        Bundle args = new Bundle();
+
+
         getLoaderManager().restartLoader(LOADER_ID, null, this);
 
         mTrailersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -114,11 +123,20 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
             public Void loadInBackground() {
                 mTrailers = new ArrayList<>();
                 try {
-                    JSONArray jsonarray = NetworkUtils.getResponseFromHttpUrl(mPoster.getId());
-                    for(int i=0; i<jsonarray.length(); i++) {
-                        JSONObject jsonObject = jsonarray.getJSONObject(i);
+                    JSONArray jsontrailer = NetworkUtils.getResponseFromHttpUrl(mPoster.getId(),"t");
+                    JSONArray jsonreview = NetworkUtils.getResponseFromHttpUrl(mPoster.getId(),"r");
+                    for(int i=0; i<jsontrailer.length(); i++) {
+                        JSONObject jsonObject = jsontrailer.getJSONObject(i);
                         mTrailers.add(new Trailer(jsonObject.getString("name"), "https://www.youtube.com/watch?v=" +jsonObject.getString("key")));
                     }
+
+                    if(jsonreview.length()<=0){
+                        mReview = new Review("no author","no reviews");
+                    }else {
+                        JSONObject jsonObject = jsonreview.getJSONObject(0);
+                        mReview = new Review(jsonObject.getString("author"), jsonObject.getString("content"));
+                    }
+
                 }catch (IOException | JSONException e) {e.printStackTrace(); }
                 return null;
             }
@@ -128,6 +146,31 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader loader, Object o) {
         mPoster.setTrailers(mTrailers);
+        mPoster.setReview(mReview);
+        btnReviews = findViewById(R.id.btn_review);
+        btnReviews.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(MovieDetail.this,ReviewsActivity.class);
+                intent.putExtra("reviews",mReview);
+                startActivity(intent);
+            }
+        });
+        btn_star = findViewById(R.id.star);
+        btn_star.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FavoritesDatabase mfavoritesDb = FavoritesDatabase.getsInstance(getApplicationContext());
+                if(mfavoritesDb.favoritesDao().isBookmarked(mPoster.getId()) > 0){
+                    btn_star.setImageResource(android.R.drawable.btn_star_big_off);
+                    //args.putBoolean("local",true);
+                }
+                else {
+                    btn_star.setImageResource(android.R.drawable.btn_star_big_on);
+                }
+            }
+        });
         if (mTrailers!=null) {
             trailersAdapter.setTrailers(mTrailers);
             setListViewHeightBasedOnChildren(mTrailersListView);
@@ -163,7 +206,12 @@ public class MovieDetail extends AppCompatActivity implements LoaderManager.Load
     }
 
     @Override
-    public void onLoaderReset(Loader loader) {
+    public void onLoaderReset(Loader loader) { }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId()==android.R.id.home) { onBackPressed(); }
+        else{ return true; }
+        return(super.onOptionsItemSelected(item));
     }
 }

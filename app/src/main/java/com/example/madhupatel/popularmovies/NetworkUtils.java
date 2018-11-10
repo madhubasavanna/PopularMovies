@@ -22,6 +22,8 @@ class NetworkUtils {
     private final static String apiKey = API_KEY;
     private final static String sortByPopularity = "popular?api_key=";
     private final static String trailerUrl = "/videos?api_key=";
+    private final static String reviewUrl = "/reviews?api_key=";
+    private final static String langAndPage = "&language=en-US&page=1";
 
     public static String buildUrl(String imageUrl,char c){
         String finalUrl;
@@ -57,8 +59,15 @@ class NetworkUtils {
         return httpConnection(urlConnection);
     }
 
-    public static JSONArray getResponseFromHttpUrl(int id) throws IOException{
-        HttpURLConnection urlConnection = (HttpURLConnection) new URL(MOVIE_URL + id +trailerUrl + apiKey).openConnection();
+    public static JSONArray getResponseFromHttpUrl(int id, String choice) throws IOException{
+        HttpURLConnection urlConnection;
+        switch (choice){
+            case "t": urlConnection = (HttpURLConnection) new URL(MOVIE_URL + id +trailerUrl + apiKey).openConnection();
+                        break;
+            case "r": urlConnection = (HttpURLConnection) new URL(MOVIE_URL + id +reviewUrl + apiKey + langAndPage).openConnection();
+                        break;
+            default:urlConnection = null;
+        }
         return httpConnection(urlConnection);
     }
 

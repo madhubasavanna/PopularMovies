@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import java.util.List;
 
-class Posters implements Parcelable {
+public class Posters implements Parcelable {
     private String name;
     private String posterUrl;
     private String rating;
@@ -13,7 +13,12 @@ class Posters implements Parcelable {
     private String overview;
     private String releaseDate;
     private List<Trailer> trailer;
+    private Review review;
     private int id;
+
+    public void setReview(Review review) { this.review = review; }
+
+    public Review getReview() { return review; }
 
     public int getId() {
         return id;
